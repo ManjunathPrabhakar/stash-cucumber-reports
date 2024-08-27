@@ -1,0 +1,17 @@
+/*
+Maven plugin ->
+
+
+
+---------------------
+
+Just Jar ->
+
+Set the data in System properties or stash.properties files in root
+Run it ->
+
+1. Listener Configuration. Cucumber Event Listener
+
+
+
+*/
