@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.manjunathprabhakar</groupId>
-    <artifactId>stash-cucumber-reports</artifactId>
+    <artifactId>stash-usageexample-cuke-listener-forelk</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -13,7 +13,5 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <!-- JUST HERE TO DO NOTHING, KEPT IT SO INTELLIJ CAN ORGANISE THE OTHER PROJECTS AS MODULES -->
 
 </project>
