@@ -192,7 +192,7 @@ public class Elements {
 //    }
 
     public Duration getDuration() {
-        Duration duration = Duration.ofSeconds(0);
+        Duration duration = Duration.ofNanos(0);
         for (Steps step : steps) {
             duration = duration.plus(step.getDuration());
         }
@@ -213,11 +213,11 @@ public class Elements {
         String res = "other";
 
         if (steps.stream().anyMatch(s -> s.getResult().getStatus().equalsIgnoreCase("failed"))) {
-            res = "fail";
+            res = "failed";
         } else if (steps.stream().anyMatch(s -> s.getResult().getStatus().equalsIgnoreCase("skipped"))) {
-            res = "skip";
+            res = "skipped";
         } else if (steps.stream().allMatch(s -> s.getResult().getStatus().equalsIgnoreCase("passed"))) {
-            res = "pass";
+            res = "passed";
         }
 
         return res;
@@ -247,9 +247,9 @@ public class Elements {
     public Map<String, String> getScenariosStatusesCount() {
         Map<String, String> stat = new HashMap<>();
 
-        stat.put("pass", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("passed")).count());
-        stat.put("fail", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("failed")).count());
-        stat.put("skip", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("skipped")).count());
+        stat.put("passed", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("passed")).count());
+        stat.put("failed", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("failed")).count());
+        stat.put("skipped", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & s.getResult().getStatus().equalsIgnoreCase("skipped")).count());
         stat.put("other", "" + steps.stream().filter(s -> getType().equalsIgnoreCase("scenario") & (!s.getResult().getStatus().equalsIgnoreCase("passed") & !s.getResult().getStatus().equalsIgnoreCase("failed") & !s.getResult().getStatus().equalsIgnoreCase("skipped"))).count());
 
         return stat;

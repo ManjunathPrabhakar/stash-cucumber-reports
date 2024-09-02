@@ -108,9 +108,9 @@ public class FeaturePOJO {
     public Map<String, String> getFeaturesStatusesCount() {
         Map<String, String> stat = new HashMap<>();
 
-        stat.put("pass", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("pass")).count());
-        stat.put("fail", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("fail")).count());
-        stat.put("skip", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("skip")).count());
+        stat.put("passed", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("passed")).count());
+        stat.put("failed", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("failed")).count());
+        stat.put("skipped", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("skipped")).count());
         stat.put("other", "" + elements.stream().filter(s -> s.getType().equalsIgnoreCase("scenario") & s.getStatus().equalsIgnoreCase("other")).count());
 
         return stat;
@@ -129,12 +129,12 @@ public class FeaturePOJO {
     public String getStatus() {
         String res = "other";
 
-        if (elements.stream().anyMatch(s -> s.getStatus().equalsIgnoreCase("fail"))) {
-            res = "fail";
-        } else if (elements.stream().anyMatch(s -> s.getStatus().equalsIgnoreCase("skip"))) {
-            res = "skip";
-        } else if (elements.stream().allMatch(s -> s.getStatus().equalsIgnoreCase("pass"))) {
-            res = "pass";
+        if (elements.stream().anyMatch(s -> s.getStatus().equalsIgnoreCase("failed"))) {
+            res = "failed";
+        } else if (elements.stream().anyMatch(s -> s.getStatus().equalsIgnoreCase("skipped"))) {
+            res = "skipped";
+        } else if (elements.stream().allMatch(s -> s.getStatus().equalsIgnoreCase("passed"))) {
+            res = "passed";
         }
 
         return res;

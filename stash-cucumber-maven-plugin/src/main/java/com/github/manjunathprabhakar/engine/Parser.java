@@ -188,7 +188,7 @@ public class Parser {
                 stashOutPojos.setScenarioError(errors);
 
                 //res.put("scenarioDuration1", element.getDuration());
-                stashOutPojos.setScenarioDuration(element.getDuration().toMillis());
+                stashOutPojos.setScenarioDuration(element.getDuration().toNanos());
 
 
                 if (element.isScenario()) {

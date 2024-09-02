@@ -9,9 +9,197 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.manjunathprabhakar</groupId>
+                <artifactId>stash-cucumber-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+
+                <executions>
+                    <execution>
+                        <id>stash-cucumber-plugin</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>begin-stash</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <jsonPath>${project.basedir}/target/cukes</jsonPath>
+                            <elasticSearchCredsPropertiesFile>${user.home}\escreds.properties
+                            </elasticSearchCredsPropertiesFile>
+                            <elasticSearchIndexName>betta</elasticSearchIndexName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!--suppress UnresolvedMavenProperty -->
+                        <cucumber.filter.tags>@ff</cucumber.filter.tags>
+                        <cucumber.features>${project.basedir}/src/test/resources/features</cucumber.features>
+                        <cucumber.glue>com.github.manjunathprabhakar.stepdefs</cucumber.glue>
+                        <cucumber.plugin>
+                            com.github.manjunathprabhakar.Spectate,
+                            json:target/cukes/cucumber.json,
+                            html:target/cukes/cucumber.html
+                        </cucumber.plugin>
+                        <cucumber.publish.enabled>false</cucumber.publish.enabled>
+                        <cucumber.publish.quiet>true</cucumber.publish.quiet>
+                    </systemPropertyVariables>
+                    <properties>
+                        <property>
+                            <name>dataproviderthreadcount</name>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <value>1</value>
+                        </property>
+                    </properties>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <includes>
+                        <include>TestNGTestRunner.java</include>
+                    </includes>
+                    <!--                        <suiteXmlFiles>-->
+                    <!--                            <suiteXmlFile>testng.xml</suiteXmlFile>-->
+                    <!--                        </suiteXmlFiles>-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.trivago.rta</groupId>
+                <artifactId>cluecumber-maven</artifactId>
+                <version>3.7.1</version>
+                <executions>
+                    <execution>
+                        <id>report</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>reporting</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- The only two mandatory properties -->
+                    <sourceJsonReportDirectory>target/cukes/cucumber.json</sourceJsonReportDirectory>
+                    <generatedHtmlReportDirectory>target/cukestrivago</generatedHtmlReportDirectory>
+
+                    <!-- Optional custom parameters that are shown on the start page (if they have a value) -->
+                    <!-- If a key starts with an underscore ("_"), only the value is displayed. -->
+                    <customParameters>
+                        <Custom_Parameter>This is a test</Custom_Parameter>
+                        <Custom_URL>https://www.google.com</Custom_URL>
+                        <Custom_Relative_URL>./css/cluecumber.css</Custom_Relative_URL>
+                        <_KeysStartingWithAnUnderscoreAreHidden>This is a long text that is displayed without the key.
+                            This can be used to display longer texts in the report!
+                        </_KeysStartingWithAnUnderscoreAreHidden>
+                    </customParameters>
+
+                    <!-- Optional display mode for custom parameters SCENARIO_PAGES (default), ALL_PAGES -->
+                    <customParametersDisplayMode>ALL_PAGES</customParametersDisplayMode>
+
+                    <!-- Optional report page title -->
+                    <customPageTitle>My Report</customPageTitle>
+
+                    <!-- Optional custom colors for passed, failed and skipped -->
+                    <!-- <customStatusColorPassed>#017FAF</customStatusColorPassed> -->
+                    <!-- <customStatusColorFailed>#C94A38</customStatusColorFailed> -->
+                    <!-- <customStatusColorSkipped>#F48F00</customStatusColorSkipped> -->
+
+                    <!-- Optional start page: ALL_SCENARIOS (default), SCENARIO_SEQUENCE, ALL_TAGS, ALL_STEPS, ALL_FEATURES -->
+                    <startPage>ALL_SCENARIOS</startPage>
+
+                    <!-- Optional custom parameters file -->
+                    <!--<customParametersFile>custom/custom.properties</customParametersFile>-->
+
+                    <!-- Optional: mark scenarios as failed that contain pending or undefined steps (default: false) -->
+                    <!-- <failScenariosOnPendingOrUndefinedSteps>true</failScenariosOnPendingOrUndefinedSteps> -->
+
+                    <!-- Optional custom CSS for custom styling -->
+                    <!-- <customCss>custom/custom.css</customCss> -->
+
+                    <!-- Optional custom favicon (needs to be a png) -->
+                    <!-- <customFavicon>custom/favicon.png</customFavicon> -->
+
+                    <!-- Optional properties to expand scenario hooks, step hooks, doc strings, attachments and step outputs when scenario details are shown (default: false) -->
+                    <expandSubSections>false</expandSubSections>
+                    <expandBeforeAfterHooks>true</expandBeforeAfterHooks>
+                    <expandStepHooks>false</expandStepHooks>
+                    <expandDocStrings>false</expandDocStrings>
+                    <expandAttachments>false</expandAttachments>
+                    <expandOutputs>false</expandOutputs>
+
+                    <!-- Optional mode to group scenario runs and expand or collapse (previous runs) children element by default -->
+                    <groupPreviousScenarioRuns>true</groupPreviousScenarioRuns>
+                    <expandPreviousScenarioRuns>false</expandPreviousScenarioRuns>
+
+                    <!-- optional: Cluecumber log level (default: default) -->
+                    <logLevel>default</logLevel>
+                    <!--<logLevel>compact</logLevel>-->
+                    <!--<logLevel>minimal</logLevel>-->
+                    <!--<logLevel>off</logLevel>-->
+
+                    <!-- Optionally skip the whole report generation -->
+                    <!-- <skip>true</skip> -->
+
+                    <!-- Optional custom navigation links that are shown in the main top navigation (if they have a value) -->
+                    <customNavigationLinks>
+                        <Test_Blog>https://www.softwaretester.blog</Test_Blog>
+                    </customNavigationLinks>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.manjunathprabhakar</groupId>
+            <artifactId>stash-cucumber-listener-forelk</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>7.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>7.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>7.7.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

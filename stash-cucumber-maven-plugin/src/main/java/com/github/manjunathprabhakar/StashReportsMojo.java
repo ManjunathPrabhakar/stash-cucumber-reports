@@ -25,7 +25,8 @@ public class StashReportsMojo extends AbstractMojo {
     @Parameter(property = "customData", defaultValue = "")
     private Map<String, String> customData;
 
-    private String skip = "false";
+    @Parameter(property = "skip", defaultValue = "false")
+    private String skip;
 
     public static void main(String[] args) throws Exception {
         StashReportsMojo s = new StashReportsMojo();

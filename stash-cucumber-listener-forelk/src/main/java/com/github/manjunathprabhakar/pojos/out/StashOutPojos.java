@@ -1,4 +1,4 @@
-package com.github.manjunathprabhakar.core.pojos.out;
+package com.github.manjunathprabhakar.pojos.out;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +27,7 @@ public class StashOutPojos {
     private String scenarioStartTime;
     private String scenarioStatus;
     private String scenarioError;
-    private long scenarioDurationInMillis;
+    private long scenarioDurationInNanos;
     private long totalSteps;
     private long totalStepsPass;
     private long totalStepsFail;

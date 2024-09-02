@@ -6,6 +6,7 @@ import com.github.manjunathprabhakar.moved.constants.For;
 import com.github.manjunathprabhakar.moved.elk.ELKservice;
 import com.github.manjunathprabhakar.moved.elk.ESCredentials;
 import com.github.manjunathprabhakar.moved.pojos.out.StashOutPojos;
+import com.google.gson.Gson;
 import lombok.Builder;
 
 import java.io.File;
@@ -31,7 +32,8 @@ public class StashCucumberReporter {
             outData = doForPlugin(jsonPath);
         else if (doFor == For.CUKE_LISTENER)
             outData = doForCukeListener(listenerData);
-
+        System.out.println("doFor = " + doFor.name());
+        System.out.println("outData = " + new Gson().toJson(outData));
         outData.stream().forEach(doc -> {
             try {
                 new ELKservice().sendToElastic(ESCredentials.builder()

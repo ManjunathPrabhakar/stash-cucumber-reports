@@ -2,7 +2,12 @@ package com.github.manjunathprabhakar.core.common.utils;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -57,6 +62,21 @@ public class TimeUtility {
         SimpleDateFormat format = new SimpleDateFormat("dd_MMM_yyyy_HH_mm_ss_z");
         format.setTimeZone(TimeZone.getDefault());
         return (format.format(toPrint));
+    }
+
+    public static String getCurrDateTimeInFormat(String dtformats) {
+        Date toPrint = new Date();//"yyyy-MM-dd HH:mm:ss.SSS z"
+        SimpleDateFormat format = new SimpleDateFormat(dtformats);
+        format.setTimeZone(TimeZone.getDefault());
+        return (format.format(toPrint));
+    }
+
+    public static String getCurrDateTimeFromCukeStartTimestamp(String cukeStartTS, String dtformats) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ENGLISH);
+        LocalDateTime date1 = LocalDateTime.parse(cukeStartTS, formatter);
+        Instant instant = date1.toInstant(ZoneOffset.UTC);
+        DateTimeFormatter a = DateTimeFormatter.ofPattern(dtformats).withZone(ZoneOffset.UTC);
+        return a.format(instant);
     }
 
 }
