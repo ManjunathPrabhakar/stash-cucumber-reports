@@ -16,7 +16,7 @@ public class StashReportsMojo extends AbstractMojo {
     @Parameter(property = "jsonPath", required = true, defaultValue = "none")
     private String jsonPath;
 
-    @Parameter(property = "elasticSearchCredsPropertiesFile", required = false, defaultValue = "none")
+    @Parameter(property = "elasticSearchCredsPropertiesFile", required = true, defaultValue = "none")
     private String elasticSearchCredsPropertiesFile;
 
     @Parameter(property = "elasticSearchIndexName", required = false, defaultValue = "betta")

@@ -34,7 +34,7 @@ public class StashCucumberReporter {
             outData = doForCukeListener(listenerData);
         System.out.println("doFor = " + doFor.name());
         System.out.println("outData = " + new Gson().toJson(outData));
-        outData.stream().forEach(doc -> {
+        outData.forEach(doc -> {
             try {
                 new ELKservice().sendToElastic(ESCredentials.builder()
                                 .esHostURL(getPropertyFileData(elasticSearchPropFile, "elasticSearchHost"))

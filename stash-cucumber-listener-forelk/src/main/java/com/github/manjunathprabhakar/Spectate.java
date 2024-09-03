@@ -13,10 +13,12 @@ import io.cucumber.plugin.EventListener;
 import io.cucumber.plugin.event.*;
 import lombok.SneakyThrows;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
@@ -62,16 +64,25 @@ public final class Spectate implements EventListener {
         String featureName = "UNNAMED";
         if (eachGherkinDocFeature.containsKey(tcStarted.getTestCase().getUri())) {
             featureName = eachGherkinDocFeature.get(tcStarted.getTestCase().getUri()).getFeature().get().getName();
-            _RUNID = eachGherkinDocFeature.get(tcStarted.getTestCase().getUri()).getFeature().hashCode();
+            //_RUNID = eachGherkinDocFeature.get(tcStarted.getTestCase().getUri()).getFeature().hashCode();
+            _RUNID =
+                    (/*tcStarted.getTestCase().getUri() +*/
+
+                            eachGherkinDocFeature.get(tcStarted.getTestCase().getUri()).getFeature().get().getName())
+                            .hashCode();
         }
         stashOutPojos.setFeatureIndex(Math.abs(_RUNID));
-        stashOutPojos.setFeatureURI(tcStarted.getTestCase().getUri().toString());
+        stashOutPojos.setFeatureURI((tcStarted.getTestCase().getUri()).toString());
         stashOutPojos.setFeatureName(featureName);
 
         stashOutPojos.setScenarioStartDate(DateTimeFormatter.ofPattern(Format.DATE.getFormat()).withZone(ZoneOffset.UTC).format(tcStarted.getInstant()));
         stashOutPojos.setScenarioStartTime(DateTimeFormatter.ofPattern(Format.TIME.getFormat()).withZone(ZoneOffset.UTC).format(tcStarted.getInstant()));
 
-        stashOutPojos.setScenarioIndex(tcStarted.getTestCase().getId().toString());
+        //stashOutPojos.setScenarioIndex(tcStarted.getTestCase().getId().toString());
+        stashOutPojos.setScenarioIndex(
+                Math.abs((eachGherkinDocFeature.get(tcStarted.getTestCase().getUri()).getFeature().get().getName() + tcStarted.getTestCase().getName()).hashCode())
+                        + ""
+        );
         stashOutPojos.setScenarioName(tcStarted.getTestCase().getName());
         stashOutPojos.setScenarioTags(tcStarted.getTestCase().getTags());
     }
@@ -93,16 +104,17 @@ public final class Spectate implements EventListener {
     }
 
     private void gherkinStepFinished(TestStepFinished testStepFinished) {
-        stashOutPojos.setTotalSteps(stashOutPojos.getTotalSteps() + 1);
-        if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("passed"))
-            stashOutPojos.setTotalStepsPass(stashOutPojos.getTotalStepsPass() + 1);
-        else if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("failed"))
-            stashOutPojos.setTotalStepsFail(stashOutPojos.getTotalStepsFail() + 1);
-        else if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("skipped"))
-            stashOutPojos.setTotalStepsSkip(stashOutPojos.getTotalStepsSkip() + 1);
-        else
-            stashOutPojos.setTotalStepsOtherStatus(stashOutPojos.getTotalStepsOtherStatus() + 1);
-
+        if (testStepFinished.getTestStep() instanceof PickleStepTestStep) {
+            stashOutPojos.setTotalSteps(stashOutPojos.getTotalSteps() + 1);
+            if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("passed"))
+                stashOutPojos.setTotalStepsPass(stashOutPojos.getTotalStepsPass() + 1);
+            else if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("failed"))
+                stashOutPojos.setTotalStepsFail(stashOutPojos.getTotalStepsFail() + 1);
+            else if (testStepFinished.getResult().getStatus().toString().equalsIgnoreCase("skipped"))
+                stashOutPojos.setTotalStepsSkip(stashOutPojos.getTotalStepsSkip() + 1);
+            else
+                stashOutPojos.setTotalStepsOtherStatus(stashOutPojos.getTotalStepsOtherStatus() + 1);
+        }
         scenarioDurationInNanos = scenarioDurationInNanos + testStepFinished.getResult().getDuration().toNanos();
     }
 
@@ -115,7 +127,7 @@ public final class Spectate implements EventListener {
             try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
                 testCaseFinished.getResult().getError().printStackTrace(printWriter);
             }
-        stashOutPojos.setScenarioError(stringWriter.toString());
+        stashOutPojos.setScenarioError(stringWriter.toString().isEmpty() ? "NA" : stringWriter.toString());
 
         runTimeScenarioStatuses.add(
                 RunTimeScenarioStatuses.builder()
@@ -130,7 +142,7 @@ public final class Spectate implements EventListener {
 
         stashOutPojos.set_dataThrough(For.CUKE_LISTENER.name());
         stashOutPojos.set_loadDate(getCurrentDate(Format.AUDIT_DATE.getFormat()));
-        stashOutPojos.set_loadDate(getCurrentDate(Format.AUDIT_TIME.getFormat()));
+        stashOutPojos.set_loadTime(getCurrentDate(Format.AUDIT_TIME.getFormat()));
         String machineName = "UNKNOWN";
         try {
             machineName = InetAddress.getLocalHost().getHostName();
@@ -147,7 +159,9 @@ public final class Spectate implements EventListener {
 
         for (StashOutPojos outPojos : stashOutPojosList) {
             //Call and log to ELK
+            outPojos.setFeatureURI(relativize(URI.create(outPojos.getFeatureURI())).toString());
         }
+
 
         System.out.println("Spectate: " + new Gson().toJson(stashOutPojosList));
     }
@@ -233,5 +247,22 @@ public final class Spectate implements EventListener {
         }
 
         return stringBuilder.toString();
+    }
+
+    private static URI relativize(URI uri) {
+        if (!"file".equals(uri.getScheme())) {
+            return uri;
+        } else if (!uri.isAbsolute()) {
+            return uri;
+        } else {
+            try {
+                URI root = (new File("")).toURI();
+                URI relative = root.relativize(uri);
+                return new URI("file", relative.getSchemeSpecificPart(), relative.getFragment());
+            } catch (URISyntaxException var3) {
+                URISyntaxException e = var3;
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 }
